@@ -1,0 +1,19 @@
+version: '3'
+services:
+  app:
+    build: .
+    command: pm2-dev ./app/server.js
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - mongodb
+    ports:
+      - '8080:8080'
+    volumes:
+      - .:/usr/src/app
+      - ./node_modules:/home/nodejs/node_modules
+  mongodb:
+    image: mongo:4
+    command: mongod
+    ports:
+      - '27017:27017'
