@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Inventory Tracker</title>
+  </head>
+  <body>
+    <h1>Inventory Tracker</h1>
+    <hr />
+
+    <h3>Inventory Item List</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>SKU</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Cost</th>
+          <th>Availability</th>
+          <th>Qty in Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="item-list"></tbody>
+    </table>
+    <button type="button" id="item-csv">Export to CSV</button>
+    <hr />
+
+    <h3>Create/Edit Item</h3>
+    <form id="item-submit">
+      <label for="item-sku">SKU</label><br />
+      <input
+        type="text"
+        id="item-sku"
+        name="sku"
+        placeholder="SKU"
+        required
+      /><br /><br />
+      <label for="item-name">Name</label><br />
+      <input
+        type="text"
+        id="item-name"
+        name="name"
+        placeholder="Name"
+        required
+      /><br /><br />
+      <label for="item-desc">Description</label><br />
+      <input
+        type="text"
+        id="item-desc"
+        name="description"
+        placeholder="Description"
+      /><br /><br />
+      <label for="item-price">Price</label><br />
+      <input
+        type="number"
+        id="item-price"
+        name="price"
+        placeholder="Price ($)"
+        step="0.01"
+        min="0"
+        required
+      /><br /><br />
+      <label for="item-cost">Cost</label><br />
+      <input
+        type="number"
+        id="item-cost"
+        name="cost"
+        placeholder="Cost ($)"
+        step="0.01"
+        min="0"
+        required
+      /><br /><br />
+      <label for="item-img">Image URL</label><br />
+      <input
+        type="text"
+        id="item-img"
+        name="image"
+        placeholder="Image URL"
+      /><br /><br />
+      <label for="item-qty">Qty in Stock</label><br />
+      <input
+        type="number"
+        id="item-qty"
+        name="inventoryCount"
+        placeholder="Qty in Stock"
+        min="0"
+      /><br /><br />
+      <input type="checkbox" id="available" name="available" value="true" />
+      <label for="available"> In-stock</label><br /><br />
+      <button type="submit">Submit</button>
+      <button type="button" id="item-submit-reset">Reset</button>
+    </form>
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const apiEndpoint = 'http://localhost:8080/api';
+      var editMode = false;
+      var editId = '';
+
+      function populateItemTable() {
+        $('#item-list').empty();
+
+        $.ajax({
+          method: 'GET',
+          url: apiEndpoint + '/item',
+          dataType: 'json',
+          success: function (data) {
+            if (data.success) {
+              if (data.items.length === 0) {
+                $('#item-list').append(`
+                  <tr><td colspan=7>No items exist</td></tr>
+                `);
+              }
+
+              data.items.forEach(function (item) {
+                $('#item-list').append(`
+                  <tr id="item-${item._id}">
+                    <td><img class="item-image" src="${
+                      item.image
+                    }" alt="Image of ${item.name}" /></td>
+                    <td>${item.sku}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>$${item.price}</td>
+                    <td>$${item.cost}</td>
+                    <td>${item.available ? 'In-stock' : 'Out of Stock'}</td>
+                    <td>${item.inventoryCount}</td>
+                    <td>
+                      <button onclick="itemAction('${
+                        item._id
+                      }', true)">Edit</button>
+                      <button onclick="itemAction('${
+                        item._id
+                      }', false)">Delete</button>
+                    </td>
+                  </tr>
+                `);
+              });
+            } else {
+              $('#item-list').append(`
+                  <tr><td colspan=7>An error has occurred: ${data.err}</td></tr>
+                `);
+            }
+          }
+        });
+      }
+
+      function itemAction(itemId, edit = true) {
+        if (edit) {
+          editMode = true;
+          editId = itemId;
+
+          $.ajax({
+            method: 'GET',
+            url: apiEndpoint + '/item/' + itemId,
+            dataType: 'json',
+            success: function (data) {
+              if (data.success) {
+                $.each(data.item, function (k, v) {
+                  const input = $(`[name="${k}"]`, $('#item-submit'));
+
+                  if (input.prop('type') == 'checkbox') {
+                    input.attr('checked', v);
+                  } else {
+                    input.val(v);
+                  }
+                });
+              } else {
+                alert('An error has occurred: ' + data.err);
+              }
+            }
+          });
+        } else {
+          $.ajax({
+            method: 'DELETE',
+            url: apiEndpoint + '/item/' + itemId,
+            dataType: 'json',
+            success: function (data) {
+              if (data.success) {
+                alert(
+                  data.item.name + ' [' + data.item.sku + '] has been deleted.'
+                );
+
+                $('#item-' + itemId).remove();
+              } else {
+                alert('An error has occurred: ' + data.err);
+              }
+            }
+          });
+        }
+      }
+
+      $(document).ready(function () {
+        populateItemTable();
+
+        $('#item-submit').submit(function (e) {
+          e.preventDefault();
+
+          const formData = $(this).serializeArray();
+          const dataObj = {};
+
+          formData.map(function (ele) {
+            if (ele.name == 'available') {
+              dataObj[ele.name] = ele.value == 'true';
+            } else if (ele.name == 'price' || ele.name == 'cost') {
+              dataObj[ele.name] = parseFloat(ele.value);
+            } else if (ele.name == 'inventoryCount') {
+              dataObj[ele.name] = parseInt(ele.value);
+            } else {
+              dataObj[ele.name] = ele.value;
+            }
+          });
+
+          if (editMode) {
+            $.ajax({
+              method: 'PATCH',
+              url: apiEndpoint + '/item/' + editId,
+              dataType: 'json',
+              contentType: 'application/json',
+              data: JSON.stringify(dataObj),
+              success: function (data) {
+                if (data.success) {
+                  alert(`Item "${data.item.name}" has been updated`);
+                  populateItemTable();
+                } else {
+                  alert('An error has occurred: ' + data.err);
+                }
+              }
+            });
+          } else {
+            $.ajax({
+              method: 'POST',
+              url: apiEndpoint + '/item/',
+              dataType: 'json',
+              contentType: 'application/json',
+              data: JSON.stringify(dataObj),
+              success: function (data) {
+                if (data.success) {
+                  alert(`Item "${data.item.name}" has been created`);
+                  populateItemTable();
+                } else {
+                  alert('An error has occurred: ' + data.err);
+                }
+              }
+            });
+          }
+
+          $('#item-submit').trigger('reset');
+          editMode = false;
+          editId = '';
+        });
+
+        $('#item-submit-reset').click(function () {
+          $('#item-submit').trigger('reset');
+          editMode = false;
+          editId = '';
+        });
+      });
+    </script>
+  </body>
+</html>

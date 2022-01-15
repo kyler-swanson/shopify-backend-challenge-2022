@@ -1,0 +1,32 @@
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+td {
+  padding: 10px;
+}
+
+.item-image {
+  width: 80px;
+}
+
+.item-action {
+  padding: 5px 10px;
+  border: 1px solid grey;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.item-edit {
+  border-color: orange;
+}
+
+.item-delete {
+  border-color: red;
+}
+
+.item-submit input {
+  display: block;
+}
