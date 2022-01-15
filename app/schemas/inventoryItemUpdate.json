@@ -12,6 +12,14 @@
     "description": {
       "type": "string"
     },
+    "price": {
+      "type": "number",
+      "minimum": 0
+    },
+    "cost": {
+      "type": "number",
+      "minimum": 0
+    },
     "image": {
       "type": "string",
       "format": "uri"
