@@ -1,8 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
-const { createItem } = require('./InventoryItem.action');
+const {
+  getItems,
+  getItem,
+  createItem,
+  updateItem,
+  deleteItem
+} = require('./InventoryItem.action');
 
-router.post('/create', createUser);
+router.get('/item/', getItems);
+router.get('/item/:id', getItem);
+router.post('/item', createItem);
+router.patch('/item/:id', updateItem);
+router.delete('/item/:id', deleteItem);
 
 module.exports = router;

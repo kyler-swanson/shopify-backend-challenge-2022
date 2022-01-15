@@ -13,8 +13,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const { connectDb } = require('./config');
 connectDb();
 
-// const routes = require('./routes/routes');
-// app.use('/api', routes);
+const routes = require('./routes/routes');
+app.use('/api', routes);
 
 app.use((req, res) => {
   res.status(404).send('404 - Not Found');
