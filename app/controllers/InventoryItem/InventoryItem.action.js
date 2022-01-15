@@ -112,7 +112,7 @@ module.exports.updateItem = async (req, res, next) => {
       });
     }
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       item: result.toObject()
     });
