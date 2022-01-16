@@ -8,6 +8,17 @@ td {
   padding: 10px;
 }
 
+#item-csv {
+  margin: 10px 0;
+  padding: 5px 10px;
+  background-color: rgb(127, 193, 255);
+  border-radius: 5px;
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+}
+
 .item-image {
   width: 80px;
 }

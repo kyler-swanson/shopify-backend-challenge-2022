@@ -8,4 +8,7 @@ router.get('/', (req, res, next) => {
 const InventoryItem = require('../controllers/InventoryItem/InventoryItem.routing');
 router.use('/', InventoryItem);
 
+const CSV = require('../controllers/CSV/CSV.routing');
+router.use('/', CSV);
+
 module.exports = router;

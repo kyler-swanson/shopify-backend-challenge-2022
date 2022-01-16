@@ -28,80 +28,32 @@
       </thead>
       <tbody id="item-list"></tbody>
     </table>
-    <button type="button" id="item-csv">Export to CSV</button>
+    <a href="http://localhost:8080/api/csv" download="item-export.csv" id="item-csv">Export to CSV</a>
     <hr />
 
     <h3>Create/Edit Item</h3>
     <form id="item-submit">
       <label for="item-sku">SKU</label><br />
-      <input
-        type="text"
-        id="item-sku"
-        name="sku"
-        placeholder="SKU"
-        required
-      /><br /><br />
+      <input type="text" id="item-sku" name="sku" placeholder="SKU" required /><br /><br />
       <label for="item-name">Name</label><br />
-      <input
-        type="text"
-        id="item-name"
-        name="name"
-        placeholder="Name"
-        required
-      /><br /><br />
+      <input type="text" id="item-name" name="name" placeholder="Name" required /><br /><br />
       <label for="item-desc">Description</label><br />
-      <input
-        type="text"
-        id="item-desc"
-        name="description"
-        placeholder="Description"
-      /><br /><br />
+      <input type="text" id="item-desc" name="description" placeholder="Description" /><br /><br />
       <label for="item-price">Price</label><br />
-      <input
-        type="number"
-        id="item-price"
-        name="price"
-        placeholder="Price ($)"
-        step="0.01"
-        min="0"
-        required
-      /><br /><br />
+      <input type="number" id="item-price" name="price" placeholder="Price ($)" step="0.01" min="0" required /><br /><br />
       <label for="item-cost">Cost</label><br />
-      <input
-        type="number"
-        id="item-cost"
-        name="cost"
-        placeholder="Cost ($)"
-        step="0.01"
-        min="0"
-        required
-      /><br /><br />
+      <input type="number" id="item-cost" name="cost" placeholder="Cost ($)" step="0.01" min="0" required /><br /><br />
       <label for="item-img">Image URL</label><br />
-      <input
-        type="text"
-        id="item-img"
-        name="image"
-        placeholder="Image URL"
-      /><br /><br />
+      <input type="text" id="item-img" name="image" placeholder="Image URL" /><br /><br />
       <label for="item-qty">Qty in Stock</label><br />
-      <input
-        type="number"
-        id="item-qty"
-        name="inventoryCount"
-        placeholder="Qty in Stock"
-        min="0"
-      /><br /><br />
+      <input type="number" id="item-qty" name="inventoryCount" placeholder="Qty in Stock" min="0" /><br /><br />
       <input type="checkbox" id="available" name="available" value="true" />
       <label for="available"> In-stock</label><br /><br />
       <button type="submit">Submit</button>
       <button type="button" id="item-submit-reset">Reset</button>
     </form>
 
-    <script
-      src="https://code.jquery.com/jquery-3.6.0.min.js"
-      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
     <script>
       const apiEndpoint = 'http://localhost:8080/api';
@@ -119,16 +71,14 @@
             if (data.success) {
               if (data.items.length === 0) {
                 $('#item-list').append(`
-                  <tr><td colspan=7>No items exist</td></tr>
+                  <tr><td colspan=9>No items exist</td></tr>
                 `);
               }
 
               data.items.forEach(function (item) {
                 $('#item-list').append(`
                   <tr id="item-${item._id}">
-                    <td><img class="item-image" src="${
-                      item.image
-                    }" alt="Image of ${item.name}" /></td>
+                    <td><img class="item-image" src="${item.image}" alt="Image of ${item.name}" /></td>
                     <td>${item.sku}</td>
                     <td>${item.name}</td>
                     <td>${item.description}</td>
@@ -137,12 +87,8 @@
                     <td>${item.available ? 'In-stock' : 'Out of Stock'}</td>
                     <td>${item.inventoryCount}</td>
                     <td>
-                      <button onclick="itemAction('${
-                        item._id
-                      }', true)">Edit</button>
-                      <button onclick="itemAction('${
-                        item._id
-                      }', false)">Delete</button>
+                      <button onclick="itemAction('${item._id}', true)">Edit</button>
+                      <button onclick="itemAction('${item._id}', false)">Delete</button>
                     </td>
                   </tr>
                 `);
@@ -188,9 +134,7 @@
             dataType: 'json',
             success: function (data) {
               if (data.success) {
-                alert(
-                  data.item.name + ' [' + data.item.sku + '] has been deleted.'
-                );
+                alert(data.item.name + ' [' + data.item.sku + '] has been deleted.');
 
                 $('#item-' + itemId).remove();
               } else {
@@ -208,11 +152,11 @@
           e.preventDefault();
 
           const formData = $(this).serializeArray();
-          const dataObj = {};
+          const dataObj = { available: false };
 
           formData.map(function (ele) {
             if (ele.name == 'available') {
-              dataObj[ele.name] = ele.value == 'true';
+              dataObj[ele.name] = ele.value === 'true';
             } else if (ele.name == 'price' || ele.name == 'cost') {
               dataObj[ele.name] = parseFloat(ele.value);
             } else if (ele.name == 'inventoryCount') {
@@ -257,12 +201,14 @@
           }
 
           $('#item-submit').trigger('reset');
+          $('#available').attr('checked', false);
           editMode = false;
           editId = '';
         });
 
         $('#item-submit-reset').click(function () {
           $('#item-submit').trigger('reset');
+          $('#available').attr('checked', false);
           editMode = false;
           editId = '';
         });
