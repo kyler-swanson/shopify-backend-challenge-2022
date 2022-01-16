@@ -5,9 +5,9 @@ RUN npm install pm2@latest --global --quiet
 WORKDIR /usr/src/app
 COPY package*.json ./
 
-COPY . .
+RUN npm install
 
-RUN npm ci
+COPY . .
 
 EXPOSE 8080
 
