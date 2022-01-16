@@ -7,7 +7,7 @@ COPY package*.json ./
 
 COPY . .
 
-RUN npm ci --only=production
+RUN npm ci
 
 EXPOSE 8080
 
