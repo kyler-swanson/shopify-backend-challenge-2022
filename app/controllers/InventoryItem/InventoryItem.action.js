@@ -104,7 +104,7 @@ module.exports.updateItem = async (req, res, next) => {
   }
 
   try {
-    const result = await InventoryItem.findByIdAndUpdate(id, req.body);
+    const result = await InventoryItem.findByIdAndUpdate(id, req.body, { new: true });
     if (!result) {
       return res.status(404).json({
         success: false,
